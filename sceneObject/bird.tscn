@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://bssbd1xj4n41p"]
+
+[ext_resource type="Script" uid="uid://df7da3kdrwa2e" path="res://script/bird.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://doc6207k1uxb3" path="res://image/bird/redbird-upflap.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://uk2m0muf3yr" path="res://image/bird/redbird-downflap.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://bvrvan1bv5b1t" path="res://image/bird/redbird-midflap.png" id="4"]
+[ext_resource type="AudioStream" uid="uid://cf4d434we2bww" path="res://audio/wing.wav" id="5"]
+[ext_resource type="AudioStream" uid="uid://bnavys5ifojkl" path="res://audio/point.wav" id="6"]
+[ext_resource type="AudioStream" uid="uid://cupahyuy4bb60" path="res://audio/die.wav" id="7"]
+[ext_resource type="AudioStream" uid="uid://co0lkhchom72b" path="res://audio/hit.wav" id="8"]
+[ext_resource type="Texture2D" uid="uid://b5rys1i1yrkyp" path="res://image/bird/yellowbird-midflap.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://clbce5hocgwu8" path="res://image/bird/bluebird-midflap.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://iy7yd1pp1iux" path="res://image/bird/bluebird-downflap.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://cblckywtdorbb" path="res://image/bird/bluebird-upflap.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://dpw2w15gyv73n" path="res://image/bird/yellowbird-downflap.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://bsoupgswa4q6s" path="res://image/bird/yellowbird-upflap.png" id="14"]
+
+[sub_resource type="CircleShape2D" id="1"]
+radius = 12.1975
+
+[sub_resource type="SpriteFrames" id="2"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2")
+}],
+"loop": true,
+"name": &"fly1",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12")
+}],
+"loop": true,
+"name": &"fly2",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14")
+}],
+"loop": true,
+"name": &"fly3",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4")
+}],
+"loop": true,
+"name": &"idle1",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10")
+}],
+"loop": true,
+"name": &"idle2",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9")
+}],
+"loop": true,
+"name": &"idle3",
+"speed": 1.0
+}]
+
+[node name="bird" type="CharacterBody2D" unique_id=196306080]
+script = ExtResource("1")
+
+[node name="bird" type="Area2D" parent="." unique_id=1358639871]
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="bird" unique_id=1127237625]
+shape = SubResource("1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=239382721]
+shape = SubResource("1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1274397019]
+texture_filter = 1
+sprite_frames = SubResource("2")
+animation = &"fly3"
+frame = 1
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=35954516]
+limit_top = 0
+limit_bottom = 512
+
+[node name="audio" type="Node" parent="." unique_id=671670591]
+
+[node name="death" type="AudioStreamPlayer" parent="audio" unique_id=152575997]
+stream = ExtResource("7")
+
+[node name="jump" type="AudioStreamPlayer" parent="audio" unique_id=978211716]
+stream = ExtResource("5")
+
+[node name="score" type="AudioStreamPlayer" parent="audio" unique_id=397876256]
+stream = ExtResource("6")
+
+[node name="hit" type="AudioStreamPlayer" parent="audio" unique_id=55121812]
+stream = ExtResource("8")
+
+[connection signal="area_entered" from="bird" to="." method="_on_bird_area_entered_scoreCount"]

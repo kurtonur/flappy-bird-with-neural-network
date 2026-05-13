@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cmmxe400ne8oa"]
+
+[ext_resource type="PackedScene" path="res://scene/play.tscn" id="1"]
+
+[node name="game" type="Node" unique_id=2121024183]
+
+[node name="play" parent="." unique_id=414146775 instance=ExtResource("1")]

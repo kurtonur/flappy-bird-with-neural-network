@@ -1,0 +1,22 @@
+# Godot editor/import cache
+.godot/
+.import/
+
+# Godot export/build output
+*.apk
+*.aab
+*.exe
+*.pck
+*.zip
+android/
+build/
+exports/
+temp/
+
+# Godot export presets may contain local credentials.
+export_presets.cfg
+export.cfg
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

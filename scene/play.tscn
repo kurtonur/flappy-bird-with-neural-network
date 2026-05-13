@@ -1,0 +1,292 @@
+[gd_scene format=3 uid="uid://bxnpj5kcf5yee"]
+
+[ext_resource type="Texture2D" uid="uid://ceo6pyfsolhhi" path="res://image/message.png" id="1"]
+[ext_resource type="Script" uid="uid://fem3fqeh0uu5" path="res://script/pipes.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://0r8rvh5lj6ge" path="res://image/background-day.png" id="3"]
+[ext_resource type="PackedScene" uid="uid://bvqlw1dvy4rxa" path="res://sceneObject/floor.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://bssbd1xj4n41p" path="res://sceneObject/bird.tscn" id="5"]
+[ext_resource type="FontFile" uid="uid://bmd58rx5sfly5" path="res://font/numberFOnt.TTF" id="6"]
+[ext_resource type="Script" uid="uid://d3ie4t6h4ejvo" path="res://script/hubControl.gd" id="8"]
+[ext_resource type="Texture2D" uid="uid://cwm1okja0vgm2" path="res://image/gameover.png" id="9"]
+[ext_resource type="PackedScene" path="res://sceneObject/flashEffect.tscn" id="10"]
+[ext_resource type="Texture2D" uid="uid://dyxt28puqqr6n" path="res://image/playButton.png" id="11"]
+[ext_resource type="Script" uid="uid://dt88ugu3wmxgh" path="res://script/ParallaxBackground.gd" id="12"]
+[ext_resource type="Texture2D" uid="uid://bmm0wp4tepsk3" path="res://image/background-night.png" id="13"]
+
+[sub_resource type="SpriteFrames" id="1"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fptpc"]
+load_path = "res://.godot/imported/resume.jpg-4c7346b2c53629b3af1fb135da68e4d2.ctex"
+
+[sub_resource type="FontFile" id="2"]
+fallbacks = Array[Font]([ExtResource("6"), ExtResource("6"), ExtResource("6")])
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
+cache/0/variation_coordinates = {}
+cache/0/face_index = 0
+cache/0/embolden = 0.0
+cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
+cache/0/spacing_top = 0
+cache/0/spacing_bottom = 0
+cache/0/spacing_space = 0
+cache/0/spacing_glyph = 0
+cache/0/baseline_offset = 0.0
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/17/0/ascent = 0.0
+cache/0/17/0/descent = 0.0
+cache/0/17/0/underline_position = 0.0
+cache/0/17/0/underline_thickness = 0.0
+cache/0/17/0/scale = 1.0
+cache/0/18/0/ascent = 0.0
+cache/0/18/0/descent = 0.0
+cache/0/18/0/underline_position = 0.0
+cache/0/18/0/underline_thickness = 0.0
+cache/0/18/0/scale = 1.0
+cache/0/19/0/ascent = 0.0
+cache/0/19/0/descent = 0.0
+cache/0/19/0/underline_position = 0.0
+cache/0/19/0/underline_thickness = 0.0
+cache/0/19/0/scale = 1.0
+cache/0/20/0/ascent = 0.0
+cache/0/20/0/descent = 0.0
+cache/0/20/0/underline_position = 0.0
+cache/0/20/0/underline_thickness = 0.0
+cache/0/20/0/scale = 1.0
+cache/0/21/0/ascent = 0.0
+cache/0/21/0/descent = 0.0
+cache/0/21/0/underline_position = 0.0
+cache/0/21/0/underline_thickness = 0.0
+cache/0/21/0/scale = 1.0
+cache/0/22/0/ascent = 0.0
+cache/0/22/0/descent = 0.0
+cache/0/22/0/underline_position = 0.0
+cache/0/22/0/underline_thickness = 0.0
+cache/0/22/0/scale = 1.0
+cache/0/23/0/ascent = 0.0
+cache/0/23/0/descent = 0.0
+cache/0/23/0/underline_position = 0.0
+cache/0/23/0/underline_thickness = 0.0
+cache/0/23/0/scale = 1.0
+cache/0/24/0/ascent = 0.0
+cache/0/24/0/descent = 0.0
+cache/0/24/0/underline_position = 0.0
+cache/0/24/0/underline_thickness = 0.0
+cache/0/24/0/scale = 1.0
+cache/0/25/0/ascent = 0.0
+cache/0/25/0/descent = 0.0
+cache/0/25/0/underline_position = 0.0
+cache/0/25/0/underline_thickness = 0.0
+cache/0/25/0/scale = 1.0
+
+[sub_resource type="FontFile" id="3"]
+fallbacks = Array[Font]([ExtResource("6"), ExtResource("6"), ExtResource("6")])
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
+cache/0/variation_coordinates = {}
+cache/0/face_index = 0
+cache/0/embolden = 0.0
+cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
+cache/0/spacing_top = 0
+cache/0/spacing_bottom = 0
+cache/0/spacing_space = 0
+cache/0/spacing_glyph = 0
+cache/0/baseline_offset = 0.0
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/17/0/ascent = 0.0
+cache/0/17/0/descent = 0.0
+cache/0/17/0/underline_position = 0.0
+cache/0/17/0/underline_thickness = 0.0
+cache/0/17/0/scale = 1.0
+cache/0/18/0/ascent = 0.0
+cache/0/18/0/descent = 0.0
+cache/0/18/0/underline_position = 0.0
+cache/0/18/0/underline_thickness = 0.0
+cache/0/18/0/scale = 1.0
+cache/0/19/0/ascent = 0.0
+cache/0/19/0/descent = 0.0
+cache/0/19/0/underline_position = 0.0
+cache/0/19/0/underline_thickness = 0.0
+cache/0/19/0/scale = 1.0
+cache/0/20/0/ascent = 0.0
+cache/0/20/0/descent = 0.0
+cache/0/20/0/underline_position = 0.0
+cache/0/20/0/underline_thickness = 0.0
+cache/0/20/0/scale = 1.0
+cache/0/21/0/ascent = 0.0
+cache/0/21/0/descent = 0.0
+cache/0/21/0/underline_position = 0.0
+cache/0/21/0/underline_thickness = 0.0
+cache/0/21/0/scale = 1.0
+cache/0/22/0/ascent = 0.0
+cache/0/22/0/descent = 0.0
+cache/0/22/0/underline_position = 0.0
+cache/0/22/0/underline_thickness = 0.0
+cache/0/22/0/scale = 1.0
+cache/0/23/0/ascent = 0.0
+cache/0/23/0/descent = 0.0
+cache/0/23/0/underline_position = 0.0
+cache/0/23/0/underline_thickness = 0.0
+cache/0/23/0/scale = 1.0
+cache/0/24/0/ascent = 0.0
+cache/0/24/0/descent = 0.0
+cache/0/24/0/underline_position = 0.0
+cache/0/24/0/underline_thickness = 0.0
+cache/0/24/0/scale = 1.0
+
+[node name="play" type="Node" unique_id=1178128024]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1450818668]
+sprite_frames = SubResource("1")
+
+[node name="message" type="Sprite2D" parent="." unique_id=1470228110]
+texture_filter = 1
+position = Vector2(144, 176)
+texture = ExtResource("1")
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="." unique_id=755049071]
+script = ExtResource("12")
+
+[node name="background-day" type="Sprite2D" parent="ParallaxBackground" unique_id=1726974826]
+visible = false
+texture_filter = 1
+position = Vector2(144, 256)
+texture = ExtResource("3")
+
+[node name="background-night" type="Sprite2D" parent="ParallaxBackground" unique_id=554791100]
+visible = false
+texture_filter = 1
+position = Vector2(144, 256)
+texture = ExtResource("13")
+
+[node name="pipes" type="Node" parent="." unique_id=79799815]
+script = ExtResource("2")
+pipe = "res://sceneObject/pipe.tscn"
+
+[node name="floor" parent="." unique_id=815130825 instance=ExtResource("4")]
+
+[node name="bird" parent="." unique_id=617810421 instance=ExtResource("5")]
+position = Vector2(144, 224)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2042274534]
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=1381478928]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("8")
+
+[node name="pause" type="Button" parent="CanvasLayer/Control" unique_id=1371488457]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.028
+anchor_top = 0.016
+anchor_right = 0.115
+anchor_bottom = 0.059
+offset_left = -0.0640001
+offset_top = -0.192
+offset_right = -0.119999
+offset_bottom = -0.208002
+focus_mode = 0
+icon = SubResource("CompressedTexture2D_fptpc")
+flat = true
+
+[node name="gameOver" type="TextureRect" parent="CanvasLayer/Control" unique_id=612485760]
+visible = false
+texture_filter = 1
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.109
+anchor_right = 1.0
+anchor_bottom = 0.191
+offset_top = 0.191998
+offset_bottom = 0.207993
+texture = ExtResource("9")
+stretch_mode = 5
+
+[node name="pauseResume" type="Button" parent="CanvasLayer/Control" unique_id=1447038984]
+visible = false
+texture_filter = 1
+layout_mode = 0
+anchor_left = 0.389
+anchor_top = 0.437
+anchor_right = 0.611
+anchor_bottom = 0.506
+offset_left = -0.0320053
+offset_top = 0.255997
+offset_right = 0.0319977
+offset_bottom = -0.0720215
+focus_mode = 0
+icon = ExtResource("11")
+flat = true
+
+[node name="retry" type="Button" parent="CanvasLayer/Control" unique_id=780241496]
+visible = false
+texture_filter = 1
+layout_mode = 0
+anchor_left = 0.389
+anchor_top = 0.437
+anchor_right = 0.611
+anchor_bottom = 0.506
+offset_left = -0.0320053
+offset_top = 0.255997
+offset_right = 0.0319977
+offset_bottom = -0.0720215
+focus_mode = 0
+icon = ExtResource("11")
+flat = true
+
+[node name="scoreWrite" type="Label" parent="CanvasLayer/Control" unique_id=1855050830]
+visible = false
+layout_mode = 0
+anchor_top = 0.023
+anchor_right = 1.0
+anchor_bottom = 0.086
+offset_top = 0.223997
+offset_bottom = -0.0320015
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = SubResource("2")
+theme_override_font_sizes/font_size = 24
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+uppercase = true
+
+[node name="scoreHigh" type="Label" parent="CanvasLayer/Control" unique_id=1621914817]
+layout_mode = 0
+anchor_top = 0.029
+anchor_right = 1.0
+anchor_bottom = 0.123
+offset_top = 0.151999
+offset_bottom = 0.0239944
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = SubResource("3")
+theme_override_font_sizes/font_size = 24
+text = "High Score
+123456789"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="flash" parent="CanvasLayer" unique_id=1783176863 instance=ExtResource("10")]
+texture_filter = 1
+position = Vector2(144, 256)
+
+[connection signal="button_up" from="CanvasLayer/Control/pause" to="CanvasLayer/Control" method="_on_pause_button_up"]
+[connection signal="button_up" from="CanvasLayer/Control/pauseResume" to="CanvasLayer/Control" method="_on_pauseResume_button_up"]
+[connection signal="button_up" from="CanvasLayer/Control/retry" to="CanvasLayer/Control" method="_on_retry_button_up"]

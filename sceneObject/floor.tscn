@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://bvqlw1dvy4rxa"]
+
+[ext_resource type="Texture2D" uid="uid://dx02uymj05sa7" path="res://image/base.png" id="1"]
+[ext_resource type="Script" uid="uid://dgid6v7octxw0" path="res://script/floorMove.gd" id="2"]
+
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(336, 16)
+
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(336, 20)
+
+[node name="floor" type="Node" unique_id=408561278]
+
+[node name="floor1" type="Node2D" parent="." unique_id=2130187395]
+texture_filter = 1
+position = Vector2(0, 400)
+script = ExtResource("2")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="floor1" unique_id=777086241]
+
+[node name="f" type="Sprite2D" parent="floor1/StaticBody2D" unique_id=896213602]
+texture = ExtResource("1")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="floor1/StaticBody2D" unique_id=1597468348]
+position = Vector2(168, 8)
+shape = SubResource("1")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="floor1/StaticBody2D" unique_id=2048889566]
+position = Vector2(168, -464)
+shape = SubResource("2")
+
+[node name="floor2" type="Node2D" parent="." unique_id=1877516047]
+texture_filter = 1
+position = Vector2(336, 400)
+script = ExtResource("2")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="floor2" unique_id=1648710046]
+
+[node name="f" type="Sprite2D" parent="floor2/StaticBody2D" unique_id=46407762]
+texture = ExtResource("1")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="floor2/StaticBody2D" unique_id=53056978]
+position = Vector2(168, 8)
+shape = SubResource("1")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="floor2/StaticBody2D" unique_id=1761564664]
+position = Vector2(168, -464)
+shape = SubResource("2")

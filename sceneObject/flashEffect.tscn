@@ -1,0 +1,10 @@
+[gd_scene format=2]
+
+[ext_resource type="Texture2D" uid="uid://bk4vdf7l02mpg" path="res://image/backgroundWhite.png" id="1"]
+
+[node name="flash" type="CPUParticles2D"]
+emitting = false
+amount = 1
+lifetime = 0.15
+one_shot = true
+texture = ExtResource( 1 )
