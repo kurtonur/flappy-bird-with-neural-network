@@ -22,7 +22,7 @@ offset_bottom = 28.0
 grow_horizontal = 2
 text = "Pop:1"
 
-[node name="Fps" type="Label" parent="CanvasLayer"]
+[node name="Fps" type="Label" parent="CanvasLayer" unique_id=1013229667]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0

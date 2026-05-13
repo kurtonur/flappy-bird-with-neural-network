@@ -5,15 +5,15 @@
 [ext_resource type="Texture2D" uid="uid://c8br5ntex50d7" path="res://image/pipe-red.png" id="3"]
 
 [sub_resource type="RectangleShape2D" id="1"]
-size = Vector2(48, 320)
+size = Vector2(48, 304)
 
 [sub_resource type="RectangleShape2D" id="2"]
-size = Vector2(50.3098, 320)
+size = Vector2(50.3098, 304)
 
 [sub_resource type="RectangleShape2D" id="3"]
-size = Vector2(16.21596, 112)
+size = Vector2(16.21596, 128)
 
-[node name="pipe" type="Node2D" unique_id=710435912]
+[node name="pipe" type="Node2D" unique_id=710435912 groups=["Pipe"]]
 texture_filter = 1
 script = ExtResource("2")
 
@@ -25,10 +25,12 @@ shape = SubResource("1")
 
 [node name="pipe-green" type="Sprite2D" parent="StaticBody2D/CollisionShape2D" unique_id=459622399]
 visible = false
+position = Vector2(0, 8)
 texture = ExtResource("1")
 
 [node name="pipe-red" type="Sprite2D" parent="StaticBody2D/CollisionShape2D" unique_id=936311222]
 visible = false
+position = Vector2(0, 8)
 texture = ExtResource("3")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=1321398763]
@@ -37,12 +39,13 @@ shape = SubResource("2")
 
 [node name="pipe-green2" type="Sprite2D" parent="StaticBody2D/CollisionShape2D2" unique_id=638660483]
 visible = false
-position = Vector2(0, -1.52588e-05)
+position = Vector2(0, -8)
 rotation = -3.14159
 texture = ExtResource("1")
 
 [node name="pipe-red2" type="Sprite2D" parent="StaticBody2D/CollisionShape2D2" unique_id=309063223]
 visible = false
+position = Vector2(0, -8)
 rotation = -3.14159
 texture = ExtResource("3")
 

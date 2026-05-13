@@ -94,10 +94,7 @@ script = ExtResource("1")
 
 [node name="NeuralNetwork" type="Node" parent="." unique_id=2039498148]
 script = ExtResource("2_miajh")
-layers = Array[int]([2, 3, 2, 1])
-bestFitness = 1500.0
-mutationFunction = 2
-activationFuction = 0
+layers = Array[int]([4, 6, 1])
 metadata/_custom_type_script = "uid://cbw330patpond"
 
 [node name="bird" type="Area2D" parent="." unique_id=1358639871]

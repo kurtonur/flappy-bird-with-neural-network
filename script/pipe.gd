@@ -6,6 +6,9 @@ extends Node2D
 @onready var pipered = get_node("StaticBody2D/CollisionShape2D/pipe-red")
 @onready var pipered2 = get_node("StaticBody2D/CollisionShape2D2/pipe-red2")
 
+func _ready() -> void:
+	add_to_group("Pipe")
+
 func setPipeColor(isGreen=true):
 	if(isGreen):
 		pipegreen.visible = true

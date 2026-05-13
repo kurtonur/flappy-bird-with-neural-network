@@ -18,7 +18,6 @@ var head_down_tween: Tween
 var status: int = Alive
 var score: int = 0
 var display_name: String = ""
-var last_label_game_state: int = -1
 
 var audio_enabled: bool = true
 var training_mode: bool = false
@@ -29,24 +28,31 @@ var training_mode: bool = false
 @onready var camera: Camera2D = $Camera2D
 
 func _ready():
-	randomize()
 	up_direction = Vector2.UP
-	configure_body_collision()
+	collision_layer = BIRD_COLLISION_LAYER
+	collision_mask = WORLD_COLLISION_MASK
 	if !is_player:
+		var has_player := has_player_in_play()
 		set_audio_enabled(false)
-		configure_ai_camera()
+		camera.enabled = !training_mode and !has_player
 		setup_ai()
-		start_ai_game()
+		if !training_mode and !has_player:
+			globe.gameState = globe.GAMESTATE.play
+			var message := get_node_or_null("../message")
+			if message != null:
+				message.visible = false
 	else:
-		configure_player_camera()
+		camera.enabled = true
+	if camera.enabled:
+		camera.make_current()
 	spriteColor = randi()%3+1
 	$AnimatedSprite2D.play("fly"+str(spriteColor))
 	update_labels()
 	
 func _physics_process(delta):
-	update_labels_on_game_state_changed()
+	update_labels()
 	if !is_player:
-		process_ai()
+		AIMove()
 	if status == Alive and (training_mode or globe.gameState == globe.GAMESTATE.play):
 		motion.y +=GRAVITY
 		motion.x = min(motion.x+ACCELERATION,MAX_SPEED)
@@ -70,19 +76,6 @@ func setup_ai() -> void:
 	if ai_file_path != "" and FileAccess.file_exists(ai_file_path):
 		ai.LoadNetworkFromFile(ai_file_path)
 
-func configure_body_collision() -> void:
-	collision_layer = BIRD_COLLISION_LAYER
-	collision_mask = WORLD_COLLISION_MASK
-
-func configure_ai_camera() -> void:
-	camera.enabled = !training_mode and !has_player_in_play()
-	if camera.enabled:
-		camera.make_current()
-
-func configure_player_camera() -> void:
-	camera.enabled = true
-	camera.make_current()
-
 func has_player_in_play() -> bool:
 	var parent_node := get_parent()
 	if parent_node == null:
@@ -92,14 +85,6 @@ func has_player_in_play() -> bool:
 			return true
 	return false
 
-func start_ai_game() -> void:
-	if training_mode or has_player_in_play():
-		return
-	globe.gameState = globe.GAMESTATE.play
-	var message := get_node_or_null("../message")
-	if message != null:
-		message.visible = false
-
 func restart_ai_game() -> void:
 	var retry_play = load("res://scene/play.tscn").instantiate()
 	if globe.playNode != null:
@@ -108,44 +93,44 @@ func restart_ai_game() -> void:
 	globe.gameState = globe.GAMESTATE.menu
 	globe.gameNode.add_child(retry_play)
 
-func process_ai() -> void:
+func AIMove() -> void:
 	if ai == null:
 		return
 	if !training_mode and globe.gameState != globe.GAMESTATE.play:
 		return
 
-	var output: PackedFloat32Array = ai.FastForward(get_ai_inputs())
+	var output: PackedFloat32Array = ai.FastForward(GetAIInputs())
 	if output.is_empty():
 		return
-	if output[0] > 0.5:
+	if output[0] >= 0.5:
 		jump()
 
-func get_ai_inputs() -> Array:
-	var viewport_size := get_viewport_rect().size
-	var next_pipe := get_next_pipe()
-	var pipe_dx := 1.0
-	var pipe_dy := 0.0
-	if next_pipe != null:
-		pipe_dx = clamp((next_pipe.global_position.x - global_position.x) / viewport_size.x, -1.0, 1.0)
-		pipe_dy = clamp((next_pipe.global_position.y - global_position.y) / viewport_size.y, -1.0, 1.0)
-	return [pipe_dx, pipe_dy]
+func GetAIInputs() -> Array:
+	var input: Array = []
+	var pipe_positions = Close2PipePosition()
+	for pipe_position in pipe_positions:
+		if pipe_position == null:
+			input = input + [0.0, 0.0]
+			continue
+		input = input + [
+			pipe_position.x - global_position.x,
+			pipe_position.y - global_position.y
+		]
+	return input
 
-func get_next_pipe() -> Node2D:
-	var pipes_node := get_node_or_null("../pipes")
-	if pipes_node == null:
-		pipes_node = get_node_or_null("../../pipes")
-	if pipes_node == null:
-		return null
+func Close2PipePosition() -> Array:
+	var pipes: Array = []
+	for item in get_tree().get_nodes_in_group("Pipe"):
+		if item is Node2D:
+			pipes.append(item)
+	pipes.sort_custom(func(a, b): return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position))
 
-	var nearest_pipe: Node2D = null
-	var nearest_distance := INF
-	for pipe_node in pipes_node.get_children():
-		if pipe_node is Node2D:
-			var distance: float = pipe_node.global_position.x - global_position.x
-			if distance > -20.0 and distance < nearest_distance:
-				nearest_pipe = pipe_node
-				nearest_distance = distance
-	return nearest_pipe
+	var result: Array = []
+	for i in range(min(2, pipes.size())):
+		result.append(pipes[i].global_position)
+	while result.size() < 2:
+		result.append(null)
+	return result
 
 func jump():
 	if is_player and globe.gameState == globe.GAMESTATE.menu:
@@ -204,7 +189,8 @@ func SetAlive() -> void:
 	status = Alive
 	set_ai_enabled(true)
 	modulate.a = 1.0
-	configure_body_collision()
+	collision_layer = BIRD_COLLISION_LAYER
+	collision_mask = WORLD_COLLISION_MASK
 	score = 0
 	motion = Vector2.ZERO
 	velocity = Vector2.ZERO
@@ -226,7 +212,7 @@ func scoreCount():
 	update_labels()
 
 func get_training_fitness() -> float:
-	return float(score)
+	return float(score * 1000) + global_position.x
 
 func set_audio_enabled(value: bool) -> void:
 	audio_enabled = value and is_player
@@ -247,17 +233,8 @@ func set_display_name(value: String) -> void:
 	display_name = value
 	update_labels()
 
-func update_labels_on_game_state_changed() -> void:
-	if last_label_game_state == globe.gameState:
-		return
-	last_label_game_state = globe.gameState
-	update_labels()
-
-func should_show_ai_labels() -> bool:
-	return !is_player and status == Alive and (training_mode or globe.gameState == globe.GAMESTATE.play)
-
 func update_labels() -> void:
-	var show_ai_labels := should_show_ai_labels()
+	var show_ai_labels := !is_player and status == Alive and (training_mode or globe.gameState == globe.GAMESTATE.play)
 	if name_label != null:
 		name_label.visible = show_ai_labels
 		name_label.text = display_name if display_name != "" else name

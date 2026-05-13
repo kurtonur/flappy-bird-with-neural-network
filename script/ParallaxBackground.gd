@@ -4,10 +4,10 @@ extends ParallaxBackground
 @onready var backgroundnight = get_node("background-night")
 
 func _ready():
-	randomize()
-	if(randi()%10+1 <= 5):
-		backgroundday.visible = true
-	else:
-		backgroundnight.visible = true
+	randomize_theme()
 	pass 
-	
+
+func randomize_theme() -> void:
+	var use_day := randi() % 2 == 0
+	backgroundday.visible = use_day
+	backgroundnight.visible = !use_day

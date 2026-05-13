@@ -2,7 +2,7 @@ extends Node
 
 @export_file("*.tscn") var pipe: String
 
-@export var pipeNumber = 4 # (int, 2, 10,1)
+@export var pipeNumber: int = 4 # (int, 2, 10,1)
 
 @onready var cam = _get_camera()
 
@@ -14,7 +14,6 @@ var customCamera: Camera2D
 
 
 func _ready():
-	randomize()
 	pipeColor = randi() % 2
 	if !_ensure_pipe_scene():
 		return
@@ -26,21 +25,7 @@ func _process(_delta):
 func _get_camera() -> Camera2D:
 	if customCamera != null:
 		return customCamera
-	var current_camera := get_viewport().get_camera_2d()
-	if current_camera != null:
-		return current_camera
-	var play_node := get_parent()
-	if play_node == null:
-		play_node = globe.playNode
-	if play_node == null:
-		return null
-	for child in play_node.get_children():
-		if child.get("is_player") == true:
-			return child.get_node_or_null("Camera2D") as Camera2D
-	for child in play_node.get_children():
-		if child.get("is_player") == false:
-			return child.get_node_or_null("Camera2D") as Camera2D
-	return null
+	return get_viewport().get_camera_2d()
 
 func set_camera(camera: Camera2D) -> void:
 	customCamera = camera
@@ -74,6 +59,7 @@ func startingPipes():
 
 func setup_training_pipes(camera: Camera2D) -> void:
 	set_camera(camera)
+	pipeColor = randi() % 2
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()

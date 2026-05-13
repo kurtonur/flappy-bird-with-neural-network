@@ -3,10 +3,16 @@ extends Node
 @export var population: int = 100
 @export var gameSpeed: int = 1
 @export var saveFile: String = "AI_Name"
-@export var aliveCountInterval: float = 0.2
+@export var hiddenLayers: Array[int] = [6]
+@export var startRandomization: Vector2 = Vector2(-1.0, 1.0)
+@export var bias: float = 0.0
+@export var learningRate: Vector2 = Vector2(-0.02, 0.02)
+@export var networkBestFitness: float = 0.0
+@export var mutationFunction: NeuralNetwork.MutationFunctions = NeuralNetwork.MutationFunctions.Default
+@export var activationFunction: NeuralNetwork.ActivationFuctions = NeuralNetwork.ActivationFuctions.Default
 
-const AI_INPUT_COUNT: int = 2
-const GENERATION_BATCH_SIZE: int = 20
+const AI_INPUT_COUNT: int = 4
+const GENERATION_BATCH_SIZE: int = 100
 
 var playerScene: PackedScene = preload("res://sceneObject/bird.tscn")
 var playerList: Array = []
@@ -14,10 +20,8 @@ var aliveCounter: int = 0
 var bestNetworkData: Dictionary = {}
 var bestFitness: float = -INF
 var isPreparingGeneration: bool = false
-var pendingParentNetworkData: Dictionary = {}
+var pendingBestNetworkData: Dictionary = {}
 var generationIndex: int = 0
-var generationSameEnd: int = 0
-var generationMutationEnd: int = 0
 var pipesNode: Node
 var trainingCamera: Camera2D
 
@@ -28,7 +32,6 @@ var trainingCamera: Camera2D
 var generation: int = 0
 var lastAliveCount: int = -1
 var lastGameSpeed: int = -1
-var aliveCountTimer: float = 0.0
 var generationStartDelay: float = 0.0
 var spawnPosition: Vector2 = Vector2(144, 224)
 
@@ -37,9 +40,10 @@ func _ready() -> void:
 	DisableGameplayUi()
 	SetupTrainingCamera()
 	SetupFloor()
+	SetupTheme()
 	SetupPipes()
-	LoadSavedBestParent()
-	CreateGeneration(bestNetworkData)
+	LoadSavedBestAI()
+	CreateGeneration()
 
 func _process(delta: float) -> void:
 	fpsLabel.text = "FPS : " + str(Engine.get_frames_per_second())
@@ -53,11 +57,6 @@ func _process(delta: float) -> void:
 	if generationStartDelay > 0.0:
 		generationStartDelay -= delta
 		return
-
-	aliveCountTimer -= delta
-	if aliveCountTimer > 0.0:
-		return
-	aliveCountTimer = aliveCountInterval
 
 	CheckBirds()
 
@@ -113,6 +112,13 @@ func SetupFloor() -> void:
 		if child.has_method("set_camera"):
 			child.set_camera(trainingCamera)
 
+func SetupTheme() -> void:
+	var themeNode := get_node_or_null("../ParallaxBackground")
+	if themeNode == null:
+		themeNode = get_node_or_null("ParallaxBackground")
+	if themeNode != null and themeNode.has_method("randomize_theme"):
+		themeNode.randomize_theme()
+
 func UpdateTrainingCamera() -> void:
 	if trainingCamera == null:
 		return
@@ -122,14 +128,12 @@ func UpdateTrainingCamera() -> void:
 			leadX = max(leadX, player.global_position.x)
 	trainingCamera.global_position = Vector2(leadX, 256.0)
 
-func CreateGeneration(parentNetworkData: Dictionary = {}) -> void:
+func CreateGeneration(bestAIData: Dictionary = {}) -> void:
 	generation += 1
 	genLabel.text = "Gen : " + str(generation)
 	RemoveExtraPlayers()
-	pendingParentNetworkData = parentNetworkData
+	pendingBestNetworkData = bestAIData
 	generationIndex = 0
-	generationSameEnd = floori(population / 3.0)
-	generationMutationEnd = floori(population * 2.0 / 3.0)
 	isPreparingGeneration = true
 	for player in playerList:
 		player.process_mode = Node.PROCESS_MODE_DISABLED
@@ -148,7 +152,7 @@ func ProcessGenerationBatch() -> void:
 			return
 
 		var player = playerList[generationIndex]
-		ApplyNetwork(player, generationIndex, pendingParentNetworkData, generationSameEnd, generationMutationEnd)
+		ApplyNetwork(player, generationIndex, pendingBestNetworkData)
 		ResetPlayer(player, generationIndex)
 		generationIndex += 1
 
@@ -166,7 +170,7 @@ func AddBird(index: int):
 	return player
 
 func ConfigurePlayer(player, index: int) -> void:
-	player.name = "player" + str(index)
+	player.name = "player" + str(index + 1)
 	player.is_player = false
 	player.training_mode = true
 	player.ai_file = ""
@@ -174,7 +178,7 @@ func ConfigurePlayer(player, index: int) -> void:
 	player.visible = false
 	player.process_mode = Node.PROCESS_MODE_DISABLED
 	player.set_audio_enabled(false)
-	player.set_display_name("p-" + str(index))
+	player.set_display_name("p-" + str(index + 1))
 
 func SetNeuralNetworkName(player) -> void:
 	if player.ai != null:
@@ -196,27 +200,27 @@ func StartNextGeneration() -> void:
 			if fitness > player.ai.fitness:
 				player.ai.fitness = fitness
 
-	UpdateBestParent()
+	UpdateBestAI()
 	ResetFloor()
+	SetupTheme()
 	SetupPipes()
 	CreateGeneration(bestNetworkData)
-	aliveCountTimer = aliveCountInterval
 	UpdateTrainingCamera()
 
 func GetBestPlayer():
 	var bestPlayer = null
-	var bestCurrentFitness: float = -INF
+	var bestCurrentFitness: float = 0.0
 	for player in playerList:
 		if player.ai == null:
 			continue
 		var fitness: float = player.get_training_fitness()
 		player.ai.fitness = fitness
-		if fitness >= bestCurrentFitness:
+		if fitness > bestCurrentFitness:
 			bestCurrentFitness = fitness
 			bestPlayer = player
 	return bestPlayer
 
-func UpdateBestParent() -> void:
+func UpdateBestAI() -> void:
 	var bestPlayer = GetBestPlayer()
 	if bestPlayer == null or bestPlayer.ai == null:
 		return
@@ -225,19 +229,22 @@ func UpdateBestParent() -> void:
 		return
 	bestFitness = currentFitness
 	bestPlayer.ai.fitness = currentFitness
+	bestPlayer.ai.bestFitness = currentFitness
 	bestNetworkData = bestPlayer.ai.GetNetworkData()
-	SaveBestParent()
+	SaveBestAI()
 
-func SaveBestParent() -> void:
+func SaveBestAI() -> void:
 	if bestNetworkData.is_empty() or saveFile == "":
 		return
 	var temp: NeuralNetwork = NeuralNetwork.new()
 	temp.SetNetworkData(bestNetworkData)
+	temp.fitness = bestFitness
+	temp.bestFitness = bestFitness
 	temp.SaveNetworkToFile("user://" + saveFile)
 
-func LoadSavedBestParent() -> void:
+func LoadSavedBestAI() -> void:
 	bestNetworkData = {}
-	bestFitness = -INF
+	bestFitness = 0.0
 	if saveFile == "":
 		return
 	var savePath: String = "user://" + saveFile
@@ -251,51 +258,77 @@ func LoadSavedBestParent() -> void:
 	bestFitness = temp.GetFitness()
 	bestNetworkData = savedNetworkData
 
-func ApplyNetwork(player, index: int, parentNetworkData: Dictionary, sameEnd: int, mutationEnd: int) -> void:
+func ApplyNetwork(player, index: int, bestAIData: Dictionary) -> void:
 	if player.ai == null:
 		return
-	if parentNetworkData.is_empty():
-		player.ai.Cleaner()
-		player.ai.InitLayers(GetRandomNetworkLayers())
-	elif index < sameEnd:
-		player.ai.SetNetworkData(parentNetworkData)
-	elif index < mutationEnd:
-		player.ai.SetNetworkData(parentNetworkData)
-		player.ai.Mutate()
+	if generation == 1 or bestAIData.is_empty():
+		InitRandomNetwork(player.ai)
+	elif index < GetBestKeepCount():
+		InitBestNetwork(player.ai, bestAIData)
+	elif index < GetBestKeepCount() + GetRandomNetworkCount():
+		InitRandomNetwork(player.ai)
 	else:
-		player.ai.Cleaner()
-		player.ai.InitLayers(GetRandomNetworkLayers())
+		InitMutatedBestNetwork(player.ai, bestAIData)
 	player.ai.fitness = 0.0
 
-func GetRandomNetworkLayers() -> Array[int]:
+func InitRandomNetwork(network: NeuralNetwork) -> void:
+	network.Cleaner()
+	ApplyNetworkSettings(network)
+	network.InitLayers(GetNetworkLayers())
+	ApplyNetworkValues(network)
+
+func InitBestNetwork(network: NeuralNetwork, bestAIData: Dictionary) -> void:
+	network.SetNetworkData(bestAIData)
+	ApplyNetworkSettings(network)
+	ApplyNetworkValues(network)
+
+func InitMutatedBestNetwork(network: NeuralNetwork, bestAIData: Dictionary) -> void:
+	InitBestNetwork(network, bestAIData)
+	network.Mutate()
+
+func GetBestKeepCount() -> int:
+	return min(1, population)
+
+func GetRandomNetworkCount() -> int:
+	return min(10, max(0, population - GetBestKeepCount()))
+
+func ApplyNetworkSettings(network: NeuralNetwork) -> void:
+	network.startRandomization = startRandomization
+	network.learningRate = learningRate
+	network.bestFitness = networkBestFitness
+	network.mutationFunction = mutationFunction
+	network.activationFuction = activationFunction
+
+func ApplyNetworkValues(network: NeuralNetwork) -> void:
+	network.SetAllBias(bias)
+
+func GetNetworkLayers() -> Array[int]:
 	var layers: Array[int] = [AI_INPUT_COUNT]
-	var hiddenLayerCount: int = randi_range(1, 3)
-	for _i in range(hiddenLayerCount):
-		layers.append(randi_range(2, 5))
+	for neuronCount in hiddenLayers:
+		layers.append(max(1, neuronCount))
 	layers.append(1)
 	return layers
 
 func IsValidNetworkData(networkData: Dictionary) -> bool:
 	if networkData.is_empty() or !networkData.has("layers"):
 		return false
-	return networkData.layers.size() >= 2 and int(networkData.layers[0]) == AI_INPUT_COUNT
+	return networkData.layers == GetNetworkLayers()
 
 func ResetPlayer(player, index: int) -> void:
 	player.position = spawnPosition
 	player.visible = true
 	player.set_audio_enabled(false)
 	player.SetAlive()
-	player.set_display_name("p-" + str(index))
+	player.set_display_name("p-" + str(index + 1))
 	SetNeuralNetworkName(player)
 
 func FinishGenerationPreparation() -> void:
 	isPreparingGeneration = false
-	pendingParentNetworkData = {}
+	pendingBestNetworkData = {}
 	for player in playerList:
 		player.process_mode = Node.PROCESS_MODE_INHERIT
 	lastAliveCount = playerList.size()
 	popLabel.text = "Pop : " + str(lastAliveCount)
-	aliveCountTimer = aliveCountInterval
 	generationStartDelay = 0.25
 	UpdateTrainingCamera()
 
