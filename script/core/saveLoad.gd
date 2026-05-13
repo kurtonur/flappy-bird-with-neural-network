@@ -32,7 +32,6 @@ func loadData():
 			printerr("Corrupted data!")
 			return get_gameData()
 	else:
-		printerr("No saved data!")
 		return get_gameData()
 		
 func get_gameData():

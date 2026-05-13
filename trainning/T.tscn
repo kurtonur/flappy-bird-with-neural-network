@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://d3ht4h0slbhsq"]
+
+[ext_resource type="Script" uid="uid://cenojc1jv2lyq" path="res://trainning/T.gd" id="2"]
+
+[node name="T" type="Node" unique_id=33285993]
+script = ExtResource("2")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1670932193]
+
+[node name="Gen" type="Label" parent="CanvasLayer" unique_id=1440257364]
+offset_right = 64.0
+offset_bottom = 28.0
+text = "Gen:1"
+
+[node name="Pop" type="Label" parent="CanvasLayer" unique_id=1593172355]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -32.0
+offset_right = 32.0
+offset_bottom = 28.0
+grow_horizontal = 2
+text = "Pop:1"
+
+[node name="Fps" type="Label" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -72.0
+offset_bottom = 28.0
+grow_horizontal = 0
+text = "FPS:0"
+horizontal_alignment = 2

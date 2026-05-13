@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://fem3fqeh0uu5" path="res://script/pipes.gd" id="2"]
 [ext_resource type="Texture2D" uid="uid://0r8rvh5lj6ge" path="res://image/background-day.png" id="3"]
 [ext_resource type="PackedScene" uid="uid://bvqlw1dvy4rxa" path="res://sceneObject/floor.tscn" id="4"]
-[ext_resource type="PackedScene" uid="uid://bssbd1xj4n41p" path="res://sceneObject/bird.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://bssbd1xj4n41p" path="res://sceneObject/bird.tscn" id="5_fptpc"]
 [ext_resource type="FontFile" uid="uid://bmd58rx5sfly5" path="res://font/numberFOnt.TTF" id="6"]
 [ext_resource type="Script" uid="uid://d3ie4t6h4ejvo" path="res://script/hubControl.gd" id="8"]
 [ext_resource type="Texture2D" uid="uid://cwm1okja0vgm2" path="res://image/gameover.png" id="9"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://dyxt28puqqr6n" path="res://image/playButton.png" id="11"]
 [ext_resource type="Script" uid="uid://dt88ugu3wmxgh" path="res://script/ParallaxBackground.gd" id="12"]
 [ext_resource type="Texture2D" uid="uid://bmm0wp4tepsk3" path="res://image/background-night.png" id="13"]
+[ext_resource type="PackedScene" uid="uid://d3ht4h0slbhsq" path="res://trainning/T.tscn" id="13_7tt85"]
 
 [sub_resource type="SpriteFrames" id="1"]
 
@@ -168,14 +169,21 @@ texture_filter = 1
 position = Vector2(144, 256)
 texture = ExtResource("13")
 
+[node name="AI" parent="." unique_id=508342982 instance=ExtResource("5_fptpc")]
+process_mode = 4
+modulate = Color(1, 1, 1, 0.49803922)
+position = Vector2(144, 224)
+
+[node name="Player" parent="." unique_id=196306080 instance=ExtResource("5_fptpc")]
+process_mode = 4
+position = Vector2(144, 224)
+is_player = true
+
 [node name="pipes" type="Node" parent="." unique_id=79799815]
 script = ExtResource("2")
 pipe = "res://sceneObject/pipe.tscn"
 
 [node name="floor" parent="." unique_id=815130825 instance=ExtResource("4")]
-
-[node name="bird" parent="." unique_id=617810421 instance=ExtResource("5")]
-position = Vector2(144, 224)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2042274534]
 
@@ -190,6 +198,7 @@ grow_vertical = 2
 script = ExtResource("8")
 
 [node name="pause" type="Button" parent="CanvasLayer/Control" unique_id=1371488457]
+visible = false
 texture_filter = 1
 layout_mode = 1
 anchors_preset = -1
@@ -286,6 +295,9 @@ uppercase = true
 [node name="flash" parent="CanvasLayer" unique_id=1783176863 instance=ExtResource("10")]
 texture_filter = 1
 position = Vector2(144, 256)
+
+[node name="T" parent="." unique_id=33285993 instance=ExtResource("13_7tt85")]
+saveFile = "AI_Na123me"
 
 [connection signal="button_up" from="CanvasLayer/Control/pause" to="CanvasLayer/Control" method="_on_pause_button_up"]
 [connection signal="button_up" from="CanvasLayer/Control/pauseResume" to="CanvasLayer/Control" method="_on_pauseResume_button_up"]

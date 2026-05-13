@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://df7da3kdrwa2e" path="res://script/bird.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://doc6207k1uxb3" path="res://image/bird/redbird-upflap.png" id="2"]
+[ext_resource type="Script" uid="uid://cbw330patpond" path="res://addons/neural_network/Scripts/NeuralNetwork.gd" id="2_miajh"]
 [ext_resource type="Texture2D" uid="uid://uk2m0muf3yr" path="res://image/bird/redbird-downflap.png" id="3"]
 [ext_resource type="Texture2D" uid="uid://bvrvan1bv5b1t" path="res://image/bird/redbird-midflap.png" id="4"]
 [ext_resource type="AudioStream" uid="uid://cf4d434we2bww" path="res://audio/wing.wav" id="5"]
@@ -88,7 +89,16 @@ animations = [{
 }]
 
 [node name="bird" type="CharacterBody2D" unique_id=196306080]
+position = Vector2(44, 4)
 script = ExtResource("1")
+
+[node name="NeuralNetwork" type="Node" parent="." unique_id=2039498148]
+script = ExtResource("2_miajh")
+layers = Array[int]([2, 3, 2, 1])
+bestFitness = 1500.0
+mutationFunction = 2
+activationFuction = 0
+metadata/_custom_type_script = "uid://cbw330patpond"
 
 [node name="bird" type="Area2D" parent="." unique_id=1358639871]
 
@@ -107,6 +117,33 @@ frame = 1
 [node name="Camera2D" type="Camera2D" parent="." unique_id=35954516]
 limit_top = 0
 limit_bottom = 512
+
+[node name="NameLabel" type="Label" parent="." unique_id=899416554]
+texture_filter = 1
+offset_left = -40.0
+offset_top = -42.0
+offset_right = 40.0
+offset_bottom = -22.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1458769008]
+visible = false
+texture_filter = 1
+offset_left = -40.0
+offset_top = 18.0
+offset_right = 40.0
+offset_bottom = 38.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="audio" type="Node" parent="." unique_id=671670591]
 
