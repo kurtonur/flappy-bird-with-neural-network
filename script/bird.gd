@@ -106,31 +106,31 @@ func AIMove() -> void:
 		jump()
 
 func GetAIInputs() -> Array:
-	var input: Array = []
-	var pipe_positions = Close2PipePosition()
-	for pipe_position in pipe_positions:
-		if pipe_position == null:
-			input = input + [0.0, 0.0]
-			continue
-		input = input + [
-			pipe_position.x - global_position.x,
-			pipe_position.y - global_position.y
-		]
-	return input
+	var target: Variant = nearest_pipe_ahead_global_position()
+	if target == null:
+		return [0.0, 0.0]
+	var pos: Vector2 = target
+	return [
+		pos.x - global_position.x,
+		pos.y - global_position.y
+	]
 
-func Close2PipePosition() -> Array:
-	var pipes: Array = []
+# Closest pipe with center x strictly ahead of this bird (Flappy-style "next" obstacle set).
+func nearest_pipe_ahead_global_position() -> Variant:
+	var best_gp: Variant = null
+	var best_dist_sq := INF
+	var my_pos := global_position
 	for item in get_tree().get_nodes_in_group("Pipe"):
-		if item is Node2D:
-			pipes.append(item)
-	pipes.sort_custom(func(a, b): return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position))
-
-	var result: Array = []
-	for i in range(min(2, pipes.size())):
-		result.append(pipes[i].global_position)
-	while result.size() < 2:
-		result.append(null)
-	return result
+		if item is not Node2D:
+			continue
+		var gp: Vector2 = (item as Node2D).global_position
+		if gp.x <= my_pos.x:
+			continue
+		var d_sq := my_pos.distance_squared_to(gp)
+		if d_sq < best_dist_sq:
+			best_dist_sq = d_sq
+			best_gp = gp
+	return best_gp
 
 func jump():
 	if is_player and globe.gameState == globe.GAMESTATE.menu:

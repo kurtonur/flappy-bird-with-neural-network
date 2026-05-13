@@ -11,7 +11,7 @@ extends Node
 @export var mutationFunction: NeuralNetwork.MutationFunctions = NeuralNetwork.MutationFunctions.Default
 @export var activationFunction: NeuralNetwork.ActivationFuctions = NeuralNetwork.ActivationFuctions.Default
 
-const AI_INPUT_COUNT: int = 4
+const AI_INPUT_COUNT: int = 2
 const GENERATION_BATCH_SIZE: int = 100
 
 var playerScene: PackedScene = preload("res://sceneObject/bird.tscn")
