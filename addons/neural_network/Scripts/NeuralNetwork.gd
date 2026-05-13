@@ -213,6 +213,54 @@ func FastForward(input :Array, CustomFunction = null, syncNeurons :bool = true) 
 func _MarkFastCacheDirty() -> void:
 	fastCacheReady = false
 
+
+## Public: rebuild SIMD-style caches after structural edits (links/neurons). See `FastForward`.
+func RebuildFastCache() -> void:
+	if not isReady:
+		return
+	_RebuildFastCache()
+
+
+## Adds one neuron at the end of hidden layer [layer_index] (not input/output). Returns true on success.
+func AppendNeuronToLayer(layer_index: int) -> bool:
+	if not isReady:
+		return false
+	if layers.size() < 3:
+		return false
+	var L: int = layer_index
+	if L < 1 or L >= layers.size() - 1:
+		return false
+	var new_idx: int = neurons[L].size()
+	var new_neuron := Neuron.new()
+	new_neuron.value = randf_range(startRandomization.x, startRandomization.y)
+	new_neuron.status = Neuron.Status.Active
+	new_neuron.ID = Vector2i(L, new_idx)
+	neurons[L].append(new_neuron)
+	layers[L] = int(layers[L]) + 1
+	for from_i in range(neurons[L - 1].size()):
+		var temp_link: Link = new_neuron.SetLinkWithWeight(
+			randf_range(startRandomization.x, startRandomization.y),
+			neurons[L - 1][from_i]
+		)
+		temp_link.from_ID = Vector2i(L - 1, from_i)
+		temp_link.to_ID = Vector2i(L, new_idx)
+		temp_link.from = neurons[temp_link.from_ID.x][temp_link.from_ID.y]
+		temp_link.to = neurons[temp_link.to_ID.x][temp_link.to_ID.y]
+		links.append(temp_link)
+	for next_i in range(neurons[L + 1].size()):
+		var temp_link2: Link = neurons[L + 1][next_i].SetLinkWithWeight(
+			randf_range(startRandomization.x, startRandomization.y),
+			new_neuron
+		)
+		temp_link2.from_ID = Vector2i(L, new_idx)
+		temp_link2.to_ID = Vector2i(L + 1, next_i)
+		temp_link2.from = neurons[temp_link2.from_ID.x][temp_link2.from_ID.y]
+		temp_link2.to = neurons[temp_link2.to_ID.x][temp_link2.to_ID.y]
+		links.append(temp_link2)
+	_MarkFastCacheDirty()
+	return true
+
+
 func _RebuildFastCache() -> void:
 	fastValues.clear()
 	fastWeights.clear()

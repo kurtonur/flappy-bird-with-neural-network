@@ -297,7 +297,10 @@ texture_filter = 1
 position = Vector2(144, 256)
 
 [node name="T" parent="." unique_id=33285993 instance=ExtResource("13_7tt85")]
-hiddenLayers = Array[int]([6, 2])
+saveFile = "AI_Name24"
+hiddenLayers = Array[int]([6, 3, 0])
+structural_max_neuron_additions = 1
+structural_max_neurons_per_hidden_layer = 14
 networkBestFitness = 1000.0
 mutationFunction = 2
 activationFunction = 2
