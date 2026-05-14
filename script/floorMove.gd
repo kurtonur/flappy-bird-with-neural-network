@@ -21,6 +21,8 @@ func reset_floor() -> void:
 	position = startPosition
 
 func _physics_process(delta):
+	if globe.training_simulation_paused:
+		return
 	if delta < 0.0:
 		return
 	if cam == null:

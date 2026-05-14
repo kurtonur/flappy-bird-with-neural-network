@@ -51,6 +51,8 @@ func _ready():
 	
 func _physics_process(delta):
 	update_labels()
+	if training_mode and globe.training_simulation_paused:
+		return
 	if !is_player:
 		AIMove()
 	if status == Alive and (training_mode or globe.gameState == globe.GAMESTATE.play):

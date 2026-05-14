@@ -297,13 +297,11 @@ texture_filter = 1
 position = Vector2(144, 256)
 
 [node name="T" parent="." unique_id=33285993 instance=ExtResource("13_7tt85")]
-saveFile = "AI_Name24"
-hiddenLayers = Array[int]([6, 3, 0])
+saveFile = "NewAI"
+rnd_hidden_neurons_min = 2
+rnd_hidden_neurons_max = 12
 structural_max_neuron_additions = 1
 structural_max_neurons_per_hidden_layer = 14
-networkBestFitness = 1000.0
-mutationFunction = 2
-activationFunction = 2
 
 [connection signal="button_up" from="CanvasLayer/Control/pause" to="CanvasLayer/Control" method="_on_pause_button_up"]
 [connection signal="button_up" from="CanvasLayer/Control/pauseResume" to="CanvasLayer/Control" method="_on_pauseResume_button_up"]

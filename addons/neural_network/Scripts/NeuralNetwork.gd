@@ -261,6 +261,185 @@ func AppendNeuronToLayer(layer_index: int) -> bool:
 	return true
 
 
+## Inserts a new fully-connected hidden layer after layer index `after_layer_index` (0 = after input, …, last_hidden = size-2).
+func InsertHiddenLayerAfter(after_layer_index: int, neuron_count: int = 4) -> bool:
+	if not isReady:
+		return false
+	var L: int = after_layer_index
+	if layers.size() < 2:
+		return false
+	if L < 0 or L >= layers.size() - 1:
+		return false
+	var nc: int = clampi(neuron_count, 1, 64)
+	var to_del: Array[Link] = []
+	for link in links:
+		if link.from_ID.x == L and link.to_ID.x == L + 1:
+			to_del.append(link)
+	for link in to_del:
+		_remove_link_from_network(link)
+	for link in links:
+		if link.from_ID.x >= L + 1:
+			link.from_ID = Vector2i(link.from_ID.x + 1, link.from_ID.y)
+		if link.to_ID.x >= L + 1:
+			link.to_ID = Vector2i(link.to_ID.x + 1, link.to_ID.y)
+	var new_row: Array = []
+	for _k in range(nc):
+		var nn := Neuron.new()
+		nn.value = randf_range(startRandomization.x, startRandomization.y)
+		nn.status = Neuron.Status.Active
+		new_row.append(nn)
+	neurons.insert(L + 1, new_row)
+	layers.insert(L + 1, nc)
+	_renumber_neuron_ids_and_link_ids()
+	for from_i in range(neurons[L].size()):
+		for to_i in range(neurons[L + 1].size()):
+			var to_n: Neuron = neurons[L + 1][to_i]
+			var temp_link: Link = to_n.SetLinkWithWeight(
+				randf_range(startRandomization.x, startRandomization.y),
+				neurons[L][from_i]
+			)
+			temp_link.from_ID = Vector2i(L, from_i)
+			temp_link.to_ID = Vector2i(L + 1, to_i)
+			temp_link.from = neurons[temp_link.from_ID.x][temp_link.from_ID.y]
+			temp_link.to = neurons[temp_link.to_ID.x][temp_link.to_ID.y]
+			links.append(temp_link)
+	for from_i in range(neurons[L + 1].size()):
+		for to_i in range(neurons[L + 2].size()):
+			var to_n2: Neuron = neurons[L + 2][to_i]
+			var temp_link2: Link = to_n2.SetLinkWithWeight(
+				randf_range(startRandomization.x, startRandomization.y),
+				neurons[L + 1][from_i]
+			)
+			temp_link2.from_ID = Vector2i(L + 1, from_i)
+			temp_link2.to_ID = Vector2i(L + 2, to_i)
+			temp_link2.from = neurons[temp_link2.from_ID.x][temp_link2.from_ID.y]
+			temp_link2.to = neurons[temp_link2.to_ID.x][temp_link2.to_ID.y]
+			links.append(temp_link2)
+	_MarkFastCacheDirty()
+	return true
+
+
+## Inserts a new hidden layer before layer index `before_layer_index` (1 = before first hidden, size-1 = before output).
+func InsertHiddenLayerBefore(before_layer_index: int, neuron_count: int = 4) -> bool:
+	if before_layer_index <= 0 or before_layer_index >= layers.size():
+		return false
+	return InsertHiddenLayerAfter(before_layer_index - 1, neuron_count)
+
+
+## Counts links where this neuron is `from` or `to` (what RemoveNeuronFromLayer deletes first).
+func CountLinksTouchingNeuron(layer_index: int, neuron_index: int) -> int:
+	if not isReady:
+		return 0
+	var id := Vector2i(layer_index, neuron_index)
+	var c: int = 0
+	for link in links:
+		if link.from_ID == id or link.to_ID == id:
+			c += 1
+	return c
+
+
+## Removes one neuron from hidden layer [layer_index] at [neuron_index]. Input and output layers are not allowed.
+## If a hidden layer becomes empty, topology is repaired: empty hiddens are dropped and links are rebuilt between adjacent survivors (down to input→output).
+func RemoveNeuronFromLayer(layer_index: int, neuron_index: int) -> bool:
+	if not isReady:
+		return false
+	if layers.size() < 3:
+		return false
+	var L: int = layer_index
+	var N: int = neuron_index
+	if L < 1 or L >= layers.size() - 1:
+		return false
+	if N < 0 or N >= neurons[L].size():
+		return false
+	if neurons[L].size() < 1:
+		return false
+	var to_remove: Array[Link] = []
+	for link in links:
+		if link.from_ID == Vector2i(L, N) or link.to_ID == Vector2i(L, N):
+			to_remove.append(link)
+	for link in to_remove:
+		_remove_link_from_network(link)
+	neurons[L].remove_at(N)
+	layers[L] = int(layers[L]) - 1
+	_renumber_neuron_ids_and_link_ids()
+	if _has_empty_hidden_layer():
+		_repair_topology_merge_empty_hidden_layers()
+	else:
+		_MarkFastCacheDirty()
+	return true
+
+
+func _remove_link_from_network(link: Link) -> void:
+	if link.to != null:
+		link.to.links.erase(link)
+	if link.from != null:
+		link.from.links.erase(link)
+	var idx: int = links.find(link)
+	if idx >= 0:
+		links.remove_at(idx)
+
+
+func _renumber_neuron_ids_and_link_ids() -> void:
+	for li in range(layers.size()):
+		for ni in range(neurons[li].size()):
+			neurons[li][ni].ID = Vector2i(li, ni)
+	for link in links:
+		if link.from != null:
+			link.from_ID = link.from.ID
+		if link.to != null:
+			link.to_ID = link.to.ID
+
+
+func _has_empty_hidden_layer() -> bool:
+	for L in range(1, layers.size() - 1):
+		if layers[L] <= 0 or (neurons.size() > L and neurons[L].is_empty()):
+			return true
+	return false
+
+
+func _clear_all_links() -> void:
+	while links.size() > 0:
+		_remove_link_from_network(links[links.size() - 1])
+
+
+## Drops hidden layers with zero neurons, then rebuilds dense weights between every adjacent pair (nearest layers), e.g. input→output only if no hidden left.
+func _repair_topology_merge_empty_hidden_layers() -> void:
+	if not isReady:
+		return
+	_clear_all_links()
+	var guard: int = 0
+	while layers.size() > 2 and guard < 64:
+		guard += 1
+		var removed := false
+		for L in range(1, layers.size() - 1):
+			if layers[L] > 0 and not neurons[L].is_empty():
+				continue
+			neurons.remove_at(L)
+			layers.remove_at(L)
+			removed = true
+			break
+		if not removed:
+			break
+	_rebuild_dense_links_between_adjacent_layers()
+	_renumber_neuron_ids_and_link_ids()
+	_MarkFastCacheDirty()
+
+
+func _rebuild_dense_links_between_adjacent_layers() -> void:
+	for layer in range(1, layers.size()):
+		for neuron in range(neurons[layer].size()):
+			for from in range(neurons[layer - 1].size()):
+				var tempLink: Link = neurons[layer][neuron].SetLinkWithWeight(
+					randf_range(startRandomization.x, startRandomization.y),
+					neurons[layer - 1][from]
+				)
+				tempLink.from_ID = Vector2i(layer - 1, from)
+				tempLink.to_ID = Vector2i(layer, neuron)
+				tempLink.from = neurons[tempLink.from_ID.x][tempLink.from_ID.y]
+				tempLink.to = neurons[tempLink.to_ID.x][tempLink.to_ID.y]
+				links.append(tempLink)
+
+
 func _RebuildFastCache() -> void:
 	fastValues.clear()
 	fastWeights.clear()

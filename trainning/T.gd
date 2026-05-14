@@ -35,6 +35,11 @@ extends Node
 const AI_INPUT_COUNT: int = 2
 const GENERATION_BATCH_SIZE: int = 100
 
+## When true (default), root window + viewport content scale are forced while this training node is in the tree.
+@export var apply_full_hd_window: bool = true
+## Logical resolution used for viewport stretch (and window size when apply_full_hd_window is on).
+@export var training_viewport_size: Vector2i = Vector2i(1920, 1080)
+
 var playerScene: PackedScene = preload("res://sceneObject/bird.tscn")
 var playerList: Array = []
 var aliveCounter: int = 0
@@ -49,6 +54,10 @@ var trainingCamera: Camera2D
 @onready var genLabel: Label = get_node("CanvasLayer/Gen")
 @onready var popLabel: Label = get_node("CanvasLayer/Pop")
 @onready var fpsLabel: Label = get_node("CanvasLayer/Fps")
+@onready var pauseTrainingButton: Button = get_node("CanvasLayer/PauseTraining")
+
+## When true, generation / bird checks do not advance (training frozen).
+var training_paused: bool = false
 
 var generation: int = 0
 var lastAliveCount: int = -1
@@ -56,7 +65,17 @@ var lastGameSpeed: int = -1
 var generationStartDelay: float = 0.0
 var spawnPosition: Vector2 = Vector2(144, 224)
 
+var _training_window_applied: bool = false
+var _saved_window_size: Vector2i = Vector2i.ZERO
+var _saved_window_position: Vector2i = Vector2i.ZERO
+var _saved_content_scale_size: Vector2i = Vector2i.ZERO
+var _saved_content_scale_mode: Window.ContentScaleMode = Window.CONTENT_SCALE_MODE_DISABLED
+var _saved_content_scale_aspect: Window.ContentScaleAspect = Window.CONTENT_SCALE_ASPECT_IGNORE
+
 func _ready() -> void:
+	globe.training_simulation_paused = false
+	training_paused = false
+	pauseTrainingButton.text = "Pause training"
 	globe.gameState = globe.GAMESTATE.play
 	DisableGameplayUi()
 	SetupTrainingCamera()
@@ -65,12 +84,74 @@ func _ready() -> void:
 	SetupPipes()
 	LoadSavedBestAI()
 	CreateGeneration(bestNetworkData)
+	pauseTrainingButton.pressed.connect(_on_pause_training_pressed)
+	if apply_full_hd_window:
+		call_deferred("_apply_training_full_hd_window")
+
+
+func _exit_tree() -> void:
+	_restore_window_after_training()
+
+
+func _get_root_window() -> Window:
+	var vp := get_viewport()
+	if vp == null:
+		return null
+	return vp.get_window()
+
+
+func _apply_training_full_hd_window() -> void:
+	if not apply_full_hd_window:
+		return
+	var win := _get_root_window()
+	if win == null:
+		return
+	if not _training_window_applied:
+		_saved_window_size = win.size
+		_saved_window_position = win.position
+		_saved_content_scale_size = win.content_scale_size
+		_saved_content_scale_mode = win.content_scale_mode
+		_saved_content_scale_aspect = win.content_scale_aspect
+		_training_window_applied = true
+	var sz := training_viewport_size
+	if sz.x < 64 or sz.y < 64:
+		sz = Vector2i(1920, 1080)
+	win.min_size = Vector2i(320, 240)
+	win.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	win.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	win.content_scale_size = sz
+	win.size = sz
+	_center_window_on_screen(win)
+
+
+func _center_window_on_screen(win: Window) -> void:
+	win.move_to_center()
+
+
+func _restore_window_after_training() -> void:
+	if not _training_window_applied:
+		return
+	var win := _get_root_window()
+	if win != null:
+		win.content_scale_mode = _saved_content_scale_mode
+		win.content_scale_aspect = _saved_content_scale_aspect
+		win.content_scale_size = _saved_content_scale_size
+		win.size = _saved_window_size
+		win.position = _saved_window_position
+	_training_window_applied = false
+
+func _on_pause_training_pressed() -> void:
+	training_paused = !training_paused
+	globe.training_simulation_paused = training_paused
+	pauseTrainingButton.text = "Resume training" if training_paused else "Pause training"
 
 func _process(delta: float) -> void:
 	fpsLabel.text = "FPS : " + str(Engine.get_frames_per_second())
 	if lastGameSpeed != gameSpeed:
 		Engine.time_scale = gameSpeed
 		lastGameSpeed = gameSpeed
+	if training_paused:
+		return
 	UpdateTrainingCamera()
 	if isPreparingGeneration:
 		ProcessGenerationBatch()

@@ -20,6 +20,8 @@ func _ready():
 	startingPipes()
 
 func _process(_delta):
+	if globe.training_simulation_paused:
+		return
 	rePositionPipes()
 
 func _get_camera() -> Camera2D:

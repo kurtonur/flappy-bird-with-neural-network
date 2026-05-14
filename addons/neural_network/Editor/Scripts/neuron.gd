@@ -56,17 +56,20 @@ func ChangeColor(color:Color) -> void:
 	modulate = color
 	pass
 
-func _gui_input(event) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and event.double_click and ID.x !=0:
-		if(self.data.status == Neuron.Status.Active):
-			self.data.status =  Neuron.Status.Passive
-			pass
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
+		return
+	# Double-click on non-input: toggle Active / Passive (training soft-off).
+	if ID.x != 0 and mb.double_click:
+		if data.status == Neuron.Status.Active:
+			data.status = Neuron.Status.Passive
 		else:
-			self.data.status =  Neuron.Status.Active
-			pass
+			data.status = Neuron.Status.Active
 	CheckClick()
-	emit_signal("On_Click",self)
-	pass
+	emit_signal("On_Click", self)
 
 func SetDisabled(value:bool = false) -> void:
 	self.isActive = value

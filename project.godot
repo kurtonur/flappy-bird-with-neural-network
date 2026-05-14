@@ -29,7 +29,6 @@ window/size/viewport_height=512
 window/size/window_width_override=576
 window/size/window_height_override=1024
 window/stretch/mode="viewport"
-window/handheld/orientation="portrait"
 
 [editor_plugins]
 
